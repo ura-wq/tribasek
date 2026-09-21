@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tribaseko Чат</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c1b, #1e1330, #2d123d);
+            color: #f3e8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            background: rgba(26, 15, 41, 0.85);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.25);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (min-width: 500px) {
+            .app-container {
+                height: 85vh;
+                border-radius: 20px;
+            }
+        }
+
+        /* Загальні елементи */
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #130a24;
+            border: 1px solid #4c1d95;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            border-color: #c084fc;
+            box-shadow: 0 0 10px rgba(192, 132, 252, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #a855f7, #9333ea);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #c084fc, #a855f7);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+        }
+
+        /* Екран профілю */
+        #profile-screen {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+        }
+
+        #profile-screen h2 {
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #e9d5ff, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #d8b4fe;
+            font-size: 14px;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #d8b4fe;
+        }
+
+        .error-text {
+            color: #f43f5e;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .profile-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* Екран вибору / пошуку чатів */
+        #chats-list-screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            padding: 20px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .top-bar h2 {
+            background: linear-gradient(135deg, #e9d5ff, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 24px;
+        }
+
+        .header-main-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* 3 розділи у меню */
+        .tabs-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 12px;
+            background: #130a24;
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid rgba(168, 85, 247, 0.15);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px;
+            background: transparent;
+            color: #d8b4fe;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: none;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #7e22ce, #6b21a8);
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(126, 34, 206, 0.4);
+        }
+
+        .search-box {
+            margin-bottom: 15px;
+        }
+
+        .chats-container {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .chat-item {
+            background: #130a24;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .chat-item:hover {
+            border-color: #c084fc;
+            background: #1a0f2e;
+            transform: translateY(-1px);
+        }
+
+        .chat-item-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #f3e8ff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chat-item-desc {
+            font-size: 13px;
+            color: #d8b4fe;
+            margin-top: 3px;
+            opacity: 0.7;
+        }
+
+        .btn-create-chat {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            color: #fff;
+        }
+        .btn-create-chat:hover {
+            background: linear-gradient(135deg, #34d399, #10b981);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+        }
+
+        /* Екран самого чату */
+        #chat-screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-header {
+            padding: 15px;
+            background: #130a24;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            font-size: 16px;
+            color: #c084fc;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: #d8b4fe;
+            border: none;
+            width: auto;
+            padding: 6px 10px;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 8px;
+            box-shadow: none;
+        }
+        .btn-action:hover {
+            color: #fff;
+            background: rgba(168, 85, 247, 0.2);
+            box-shadow: none;
+        }
+
+        .btn-logout {
+            color: #fca5a5;
+        }
+        .btn-logout:hover {
+            color: #fff;
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            background: #1e1330;
+            border: 1px solid rgba(168, 85, 247, 0.15);
+            padding: 10px 14px;
+            border-radius: 14px;
+            max-width: 80%;
+            position: relative;
+            word-break: break-word;
+            align-self: flex-start;
+        }
+
+        .message.my-message {
+            background: linear-gradient(135deg, #7e22ce, #9333ea);
+            border-color: rgba(192, 132, 252, 0.3);
+            align-self: flex-end;
+        }
+
+        .msg-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #d8b4fe;
+            margin-bottom: 4px;
+            gap: 10px;
+            opacity: 0.9;
+        }
+
+        .msg-username {
+            color: #c084fc;
+            font-weight: 500;
+        }
+
+        .my-message .msg-username {
+            color: #fae8ff;
+        }
+
+        .msg-text {
+            font-size: 15px;
+            line-height: 1.4;
+            color: #f3e8ff;
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #fca5a5;
+            cursor: pointer;
+            font-size: 11px;
+            padding: 0;
+            margin: 0;
+            width: auto;
+            opacity: 0.7;
+            box-shadow: none;
+        }
+
+        .btn-delete:hover {
+            opacity: 1;
+            color: #f43f5e;
+            background: none;
+            box-shadow: none;
+        }
+
+        .chat-input-area {
+            padding: 15px;
+            background: #130a24;
+            border-top: 1px solid rgba(168, 85, 247, 0.2);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            margin: 0;
+        }
+
+        .chat-input-area button {
+            width: 90px;
+            margin: 0;
+        }
+
+        /* Загальне модальне вікно */
+        .modal-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 5, 20, 0.8);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        .modal {
+            background: #1a0f2e;
+            padding: 22px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 380px;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            box-shadow: 0 10px 30px rgba(107, 33, 168, 0.4);
+        }
+
+        .modal h3 {
+            color: #c084fc;
+            margin-bottom: 15px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-cancel {
+            background: #2d123d;
+            color: #d8b4fe;
+            box-shadow: none;
+        }
+        .btn-cancel:hover {
+            background: #3b1652;
+            box-shadow: none;
+        }
+        
+        .type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .type-btn {
+            flex: 1;
+            padding: 9px;
+            background: #130a24;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            color: #d8b4fe;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            box-shadow: none;
+        }
+        .type-btn.active {
+            border-color: #c084fc;
+            color: #fff;
+            background: linear-gradient(135deg, #7e22ce, #6b21a8);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- 1. Екран профілю -->
+        <div id="profile-screen">
+            <h2 id="profile-title">Tribaseko</h2>
+            <p class="subtitle" id="profile-subtitle">Введіть свої дані для входу</p>
+            <div class="input-group">
+                <label>Ваше Ім'я</label>
+                <input type="text" id="name-input" placeholder="Олександр">
+            </div>
+            <div class="input-group">
+                <label>Юзернейм</label>
+                <input type="text" id="username-input" placeholder="username">
+                <div id="error-msg" class="error-text">Цей юзернейм вже зайнятий іншим користувачем!</div>
+            </div>
+            <div class="profile-buttons" id="profile-btns-container">
+                <button onclick="saveProfile()">Продовжити</button>
+            </div>
+        </div>
+
+        <!-- 2. Екран вибору та пошуку чатів/каналів -->
+        <div id="chats-list-screen">
+            <div class="top-bar">
+                <h2>Tribaseko</h2>
+                <div class="header-main-buttons">
+                    <button class="btn-action" onclick="openEditProfile()">Профіль</button>
+                    <button class="btn-action btn-logout" onclick="logout()">Вийти</button>
+                </div>
+            </div>
+
+            <!-- 3 розділи: Групи, Загальний чат, Канали -->
+            <div class="tabs-container">
+                <button class="tab-btn active" id="tab-groups" onclick="switchTab('groups')">Групи</button>
+                <button class="tab-btn" id="tab-general" onclick="switchTab('general')">Загальний чат</button>
+                <button class="tab-btn" id="tab-channels" onclick="switchTab('channels')">Канали</button>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Пошук..." oninput="filterChats()">
+            </div>
+            <div class="chats-container" id="chats-container"></div>
+            <button class="btn-create-chat" id="btn-create-toggle" onclick="openCreateModal()">+ Створити</button>
+        </div>
+
+        <!-- 3. Екран самого чату/каналу -->
+        <div id="chat-screen">
+            <div class="chat-header">
+                <h3 id="current-chat-title">Назва</h3>
+                <div class="header-buttons">
+                    <button class="btn-action" onclick="goBackToChats()">Назад</button>
+                    <button class="btn-action" onclick="openEditProfile()">Профіль</button>
+                </div>
+            </div>
+            <div class="chat-messages" id="messages-container"></div>
+            <div class="chat-input-area" id="chat-input-area">
+                <input type="text" id="msg-input" placeholder="Написати повідомлення..." onkeydown="checkEnter(event)">
+                <button onclick="sendMessage()">Надіслати</button>
+            </div>
+        </div>
+
+        <!-- Модальне вікно створення -->
+        <div id="create-modal" class="modal-overlay">
+            <div class="modal">
+                <h3 id="modal-heading">Створити</h3>
+                <div class="input-group">
+                    <label>Тип</label>
+                    <div class="type-selector">
+                        <button class="type-btn active" id="type-group-btn" onclick="setCreationType('group')">Група</button>
+                        <button class="type-btn" id="type-channel-btn" onclick="setCreationType('channel')">Канал</button>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label id="modal-name-label">Назва групи</label>
+                    <input type="text" id="new-chat-name" placeholder="Наприклад: Новини ігри">
+                </div>
+                <div class="input-group" id="password-group-container">
+                    <label>Пароль (необов'язково)</label>
+                    <input type="password" id="new-chat-password" placeholder="Пароль для приватних">
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn-cancel" onclick="closeCreateModal()">Скасувати</button>
+                    <button onclick="createChatOrChannel()">Створити</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальне вікно введення пароля -->
+        <div id="password-modal" class="modal-overlay">
+            <div class="modal">
+                <h3 id="password-modal-title">Приватний доступ</h3>
+                <p class="subtitle" style="margin-bottom: 10px;" id="password-modal-desc">Цей об'єкт захищено паролем.</p>
+                <div class="input-group">
+                    <label>Введіть пароль</label>
+                    <input type="password" id="access-password" placeholder="Пароль">
+                    <div id="password-error" class="error-text">Невірний пароль!</div>
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn-cancel" onclick="closePasswordModal()">Скасувати</button>
+                    <button onclick="verifyPassword()">Увійти</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Modular v10) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, get, update, remove, onValue, push, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+ const firebaseConfig = {
+          apiKey: "AIzaSyDRBRvmYpME76hn7Pep0POrHYbVnwlXVnI",
+         authDomain: "tribasek-4adce.firebaseapp.com",
+         databaseURL: "https://tribasek-4adce-default-rtdb.europe-west1.firebasedatabase.app",
+         projectId: "tribasek-4adce",
+         storageBucket: "tribasek-4adce.firebasestorage.app",
+         messagingSenderId: "32210614518",
+         appId: "1:32210614518:web:6c2a9ff3588d50f05014d7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let currentUser = JSON.parse(localStorage.getItem('chat_user')) || null;
+        let chats = [];
+        let currentChatId = null;
+        let pendingChatId = null;
+        let messagesUnsubscribe = null;
+        let activeTab = 'groups';
+        let creationType = 'group';
+
+        const profileScreen = document.getElementById('profile-screen');
+        const chatsListScreen = document.getElementById('chats-list-screen');
+        const chatScreen = document.getElementById('chat-screen');
+        
+        const nameInput = document.getElementById('name-input');
+        const usernameInput = document.getElementById('username-input');
+        const errorMsg = document.getElementById('error-msg');
+        const profileTitle = document.getElementById('profile-title');
+        const profileSubtitle = document.getElementById('profile-subtitle');
+        const profileBtnsContainer = document.getElementById('profile-btns-container');
+        
+        const chatsContainer = document.getElementById('chats-container');
+        const searchInput = document.getElementById('search-input');
+        const messagesContainer = document.getElementById('messages-container');
+        const msgInput = document.getElementById('msg-input');
+        const chatInputArea = document.getElementById('chat-input-area');
+        const currentChatTitle = document.getElementById('current-chat-title');
+        
+        const createModal = document.getElementById('create-modal');
+        const newChatNameInput = document.getElementById('new-chat-name');
+        const newChatPasswordInput = document.getElementById('new-chat-password');
+        const passwordGroupContainer = document.getElementById('password-group-container');
+        const btnCreateToggle = document.getElementById('btn-create-toggle');
+        
+        const passwordModal = document.getElementById('password-modal');
+        const passwordModalTitle = document.getElementById('password-modal-title');
+        const passwordModalDesc = document.getElementById('password-modal-desc');
+        const accessPasswordInput = document.getElementById('access-password');
+        const passwordError = document.getElementById('password-error');
+
+        const chatsRef = ref(db, 'chats');
+        onValue(chatsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                chats = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+            } else {
+                set(ref(db, 'chats/general'), { name: 'Загальний чат', password: '', creatorId: 'system', type: 'general' });
+                chats = [{ id: 'general', name: 'Загальний чат', password: '', creatorId: 'system', type: 'general' }];
+            }
+            
+            if (!chats.some(c => c.id === 'general')) {
+                set(ref(db, 'chats/general'), { name: 'Загальний чат', password: '', creatorId: 'system', type: 'general' });
+            }
+
+            if (chatsListScreen.style.display === 'flex') {
+                renderContent();
+            }
+        });
+
+        window.onload = function() {
+            if (currentUser && currentUser.name && currentUser.username) {
+                showChatsList();
+            } else {
+                showLoginProfile();
+            }
+        };
+
+        function showLoginProfile() {
+            profileTitle.textContent = "Tribaseko";
+            profileSubtitle.textContent = "Введіть свої дані для входу";
+            profileBtnsContainer.innerHTML = `<button onclick="window.saveProfile()">Продовжити</button>`;
+            nameInput.value = '';
+            usernameInput.value = '';
+            errorMsg.style.display = 'none';
+            profileScreen.style.display = 'flex';
+            chatsListScreen.style.display = 'none';
+            chatScreen.style.display = 'none';
+        }
+
+        window.openEditProfile = function() {
+            profileTitle.textContent = "Редагування профілю";
+            profileSubtitle.textContent = "Змініть свої дані";
+            profileBtnsContainer.innerHTML = `
+                <button class="btn-cancel" onclick="window.goBackFromEdit()">Скасувати</button>
+                <button onclick="window.saveProfile()">Зберегти</button>
+            `;
+            nameInput.value = currentUser.name;
+            usernameInput.value = currentUser.username;
+            errorMsg.style.display = 'none';
+
+            profileScreen.style.display = 'flex';
+            chatsListScreen.style.display = 'none';
+            chatScreen.style.display = 'none';
+        }
+
+        window.goBackFromEdit = function() {
+            if (currentChatId) {
+                profileScreen.style.display = 'none';
+                chatScreen.style.display = 'flex';
+            } else {
+                showChatsList();
+            }
+        }
+
+        window.saveProfile = async function() {
+            let name = nameInput.value.trim();
+            let username = usernameInput.value.trim().toLowerCase();
+
+            if (!name || !username) {
+                alert("Будь ласка, заповніть обидва поля!");
+                return;
+            }
+
+            const usersRef = ref(db, 'users');
+            const snapshot = await get(usersRef);
+            let usersData = snapshot.val() || {};
+            let userId = currentUser ? currentUser.id : 'id_' + Math.random().toString(36).substr(2, 9);
+
+            for (let u in usersData) {
+                if (u === username && usersData[u] !== userId) {
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+            }
+            errorMsg.style.display = 'none';
+
+            if (currentUser && currentUser.username !== username) {
+                await remove(ref(db, `users/${currentUser.username}`));
+            }
+
+            await set(ref(db, `users/${username}`), userId);
+            currentUser = { name, username, id: userId };
+            localStorage.setItem('chat_user', JSON.stringify(currentUser));
+            
+            if (currentChatId) {
+                chatScreen.style.display = 'flex';
+                profileScreen.style.display = 'none';
+            } else {
+                showChatsList();
+            }
+        }
+
+        window.logout = function() {
+            localStorage.removeItem('chat_user');
+            currentUser = null;
+            currentChatId = null;
+            showLoginProfile();
+        }
+
+        function showChatsList() {
+            profileScreen.style.display = 'none';
+            chatScreen.style.display = 'none';
+            chatsListScreen.style.display = 'flex';
+            renderContent();
+        }
+
+        window.switchTab = function(tab) {
+            activeTab = tab;
+            document.getElementById('tab-groups').className = tab === 'groups' ? 'tab-btn active' : 'tab-btn';
+            document.getElementById('tab-general').className = tab === 'general' ? 'tab-btn active' : 'tab-btn';
+            document.getElementById('tab-channels').className = tab === 'channels' ? 'tab-btn active' : 'tab-btn';
+
+            if (tab === 'general') {
+                openChat('general');
+                return;
+            }
+
+            if (tab === 'channels') {
+                btnCreateToggle.style.display = 'block';
+                btnCreateToggle.textContent = '+ Створити канал';
+            } else {
+                btnCreateToggle.style.display = 'block';
+                btnCreateToggle.textContent = '+ Створити групу';
+            }
+
+            renderContent();
+        }
+
+        function renderContent() {
+            if (activeTab === 'general') return;
+
+            chatsContainer.innerHTML = '';
+            let filter = searchInput.value.trim().toLowerCase();
+
+            let filtered = chats.filter(c => {
+                let matchesSearch = c.name.toLowerCase().includes(filter);
+                if (!matchesSearch) return false;
+
+                if (activeTab === 'groups') {
+                    return c.type !== 'channel' && c.id !== 'general';
+                } else if (activeTab === 'channels') {
+                    return c.type === 'channel';
+                }
+                return false;
+            });
+
+            if (filtered.length === 0) {
+                chatsContainer.innerHTML = `<div style="text-align: center; color: #d8b4fe; opacity: 0.5; margin-top: 20px;">Нічого не знайдено</div>`;
+                return;
+            }
+
+            filtered.forEach(itemData => {
+                let item = document.createElement('div');
+                item.className = 'chat-item';
+                item.onclick = () => window.tryOpenChat(itemData.id);
+                
+                let lockIcon = itemData.password ? ' 🔒' : '';
+                let descText = itemData.type === 'channel' ? (itemData.password ? '🔒 Приватний канал новин' : '📢 Канал новин') : (itemData.password ? '🔒 Приватна група' : '💬 Груповий чат');
+
+                item.innerHTML = `
+                    <div>
+                        <div class="chat-item-title">${escapeHtml(itemData.name)}${lockIcon}</div>
+                        <div class="chat-item-desc">${descText}</div>
+                    </div>
+                `;
+                chatsContainer.appendChild(item);
+            });
+        }
+
+        window.filterChats = function() {
+            renderContent();
+        }
+
+        window.openCreateModal = function() {
+            creationType = activeTab === 'channels' ? 'channel' : 'group';
+            updateCreationModalUI();
+            createModal.style.display = 'flex';
+            newChatNameInput.value = '';
+            newChatPasswordInput.value = '';
+            newChatNameInput.focus();
+        }
+
+        window.setCreationType = function(type) {
+            creationType = type;
+            updateCreationModalUI();
+        }
+
+        function updateCreationModalUI() {
+            let groupBtn = document.getElementById('type-group-btn');
+            let channelBtn = document.getElementById('type-channel-btn');
+            let label = document.getElementById('modal-name-label');
+            let passContainer = document.getElementById('password-group-container');
+
+            if (creationType === 'group') {
+                groupBtn.className = 'type-btn active';
+                channelBtn.className = 'type-btn';
+                label.textContent = 'Назва групи';
+                passContainer.style.display = 'block';
+            } else {
+                groupBtn.className = 'type-btn';
+                channelBtn.className = 'type-btn active';
+                label.textContent = 'Назва каналу';
+                passContainer.style.display = 'block';
+            }
+        }
+
+        window.closeCreateModal = function() {
+            createModal.style.display = 'none';
+        }
+
+        window.createChatOrChannel = function() {
+            let name = newChatNameInput.value.trim();
+            let password = newChatPasswordInput.value.trim();
+
+            if (!name) {
+                alert("Введіть назву!");
+                return;
+            }
+
+            const newRef = push(ref(db, 'chats'));
+            set(newRef, {
+                name: name,
+                password: password,
+                creatorId: currentUser.id,
+                type: creationType
+            });
+
+            closeCreateModal();
+        }
+
+        window.tryOpenChat = function(chatId) {
+            let chat = chats.find(c => c.id === chatId);
+            if (!chat) return;
+
+            if (chat.password && chat.creatorId !== currentUser.id) {
+                pendingChatId = chatId;
+                accessPasswordInput.value = '';
+                passwordError.style.display = 'none';
+                
+                if (chat.type === 'channel') {
+                    passwordModalTitle.textContent = "Приватний канал";
+                    passwordModalDesc.textContent = "Цей канал новин захищено паролем.";
+                } else {
+                    passwordModalTitle.textContent = "Приватна група";
+                    passwordModalDesc.textContent = "Цю групу захищено паролем.";
+                }
+
+                passwordModal.style.display = 'flex';
+                accessPasswordInput.focus();
+            } else {
+                openChat(chatId);
+            }
+        }
+
+        window.closePasswordModal = function() {
+            passwordModal.style.display = 'none';
+            pendingChatId = null;
+        }
+
+        window.verifyPassword = function() {
+            let chat = chats.find(c => c.id === pendingChatId);
+            if (chat && accessPasswordInput.value === chat.password) {
+                closePasswordModal();
+                openChat(pendingChatId);
+            } else {
+                passwordError.style.display = 'block';
+            }
+        }
+
+        function openChat(chatId) {
+            currentChatId = chatId;
+            let chat = chats.find(c => c.id === chatId);
+            currentChatTitle.textContent = chat ? chat.name : 'Чат';
+
+            let isChannel = chat && chat.type === 'channel';
+            let isCreator = chat && chat.creatorId === currentUser.id;
+
+            if (isChannel && !isCreator) {
+                chatInputArea.style.display = 'none';
+            } else {
+                chatInputArea.style.display = 'flex';
+            }
+
+            chatsListScreen.style.display = 'none';
+            chatScreen.style.display = 'flex';
+            listenMessages(chatId);
+        }
+
+        window.goBackToChats = function() {
+            currentChatId = null;
+            chatScreen.style.display = 'none';
+            chatsListScreen.style.display = 'flex';
+            if (activeTab === 'general') {
+                activeTab = 'groups';
+                document.getElementById('tab-groups').className = 'tab-btn active';
+                document.getElementById('tab-general').className = 'tab-btn';
+            }
+            renderContent();
+        }
+
+        window.sendMessage = function() {
+            let text = msgInput.value.trim();
+            if (!text) return;
+
+            const messagesRef = ref(db, `messages/${currentChatId}`);
+            push(messagesRef, {
+                userId: currentUser.id,
+                name: currentUser.name,
+                username: currentUser.username,
+                text: text,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+            
+            msgInput.value = '';
+        }
+
+        window.checkEnter = function(event) {
+            if (event.key === 'Enter') {
+                window.sendMessage();
+            }
+        }
+
+        window.deleteMessage = function(msgId) {
+            remove(ref(db, `messages/${currentChatId}/${msgId}`));
+        }
+
+        function listenMessages(chatId) {
+            messagesContainer.innerHTML = '';
+            const messagesRef = ref(db, `messages/${chatId}`);
+            
+            messagesUnsubscribe = onValue(messagesRef, (snapshot) => {
+                messagesContainer.innerHTML = '';
+                const data = snapshot.val();
+                
+                let chat = chats.find(c => c.id === chatId);
+                let isChannel = chat && chat.type === 'channel';
+
+                if (!data) {
+                    let emptyText = isChannel ? 'У цьому каналі ще немає публікацій.' : 'Повідомлень у цьому чаті ще немає. Напишіть першим!';
+                    messagesContainer.innerHTML = `<div style="text-align: center; color: #d8b4fe; opacity: 0.5; margin-top: 20px;">${emptyText}</div>`;
+                    return;
+                }
+
+                Object.keys(data).forEach(msgId => {
+                    let msg = data[msgId];
+                    let isMyMessage = msg.userId === currentUser.id;
+                    
+                    let msgDiv = document.createElement('div');
+                    msgDiv.className = `message ${isMyMessage ? 'my-message' : ''}`;
+                    
+                    let deleteBtnHtml = (isMyMessage || (chat && chat.creatorId === currentUser.id)) ? `<button class="btn-delete" onclick="window.deleteMessage('${msgId}')">Видалити</button>` : '';
+
+                    msgDiv.innerHTML = `
+                        <div class="msg-header">
+                            <span class="msg-username">${escapeHtml(msg.name)} (${escapeHtml(msg.username)})</span>
+                            <div>
+                                <span style="font-size: 10px; opacity: 0.7; margin-right: 5px;">${msg.time}</span>
+                                ${deleteBtnHtml}
+                            </div>
+                        </div>
+                        <div class="msg-text">${escapeHtml(msg.text)}</div>
+                    `;
+                    
+                    messagesContainer.appendChild(msgDiv);
+                });
+
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            });
+        }
+
+        function escapeHtml(text) {
+            let map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+    </script>
+</body>
+</html>
